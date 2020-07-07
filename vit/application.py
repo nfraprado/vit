@@ -173,8 +173,17 @@ class Application():
         def _task_uuid():
             uuid, _ = self.get_focused_task()
             return uuid
+        def _task_attrib(attrib):
+            def _get_attr():
+                _, task = self.get_focused_task()
+                if task[attrib]:
+                    return task[attrib]
+                else:
+                    return ''
+            return _get_attr
         replacements = {
             'TASK_UUID': _task_uuid,
+            'TASK_PROJECT': _task_attrib('project'),
         }
         keybindings = self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
         self.key_cache = KeyCache(keybindings)
