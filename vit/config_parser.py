@@ -42,6 +42,8 @@ DEFAULTS = {
         'default_keybindings': 'vi',
         'theme': 'default',
         'confirmation': True,
+        'ignorecase': False,
+        'smartcase': False,
         'wait': True,
         'mouse': False,
     },
@@ -110,6 +112,7 @@ class ConfigParser(object):
     def set_config_data(self):
         self.subproject_indentable = self.is_subproject_indentable()
         self.row_striping_enabled = self.is_row_striping_enabled()
+        self.case_method = self.get_case_method()
         self.confirmation_enabled = self.is_confirmation_enabled()
         self.wait_enabled = self.is_wait_enabled()
         self.mouse_enabled = self.is_mouse_enabled()
@@ -192,6 +195,19 @@ configuration.
 
     def is_row_striping_enabled(self):
         return self.get('report', 'row_striping')
+
+    def get_case_method(self):
+        if self.is_case_smart():
+            return 'smart'
+        if self.is_case_ignored():
+            return 'insensitive'
+        return 'sensitive'
+
+    def is_case_ignored(self):
+        return self.get('vit', 'ignorecase')
+
+    def is_case_smart(self):
+        return self.get('vit', 'smartcase')
 
     def is_confirmation_enabled(self):
         return self.get('vit', 'confirmation')

@@ -472,20 +472,30 @@ class Application():
     def search_set_direction(self, op):
         self.search_direction_reverse = op == 'search-reverse'
 
+    def is_search_insensitive(self):
+        return (self.config.case_method == 'insensitive' or
+                self.config.case_method == 'smart' and
+                self.search_term_active.lower() == self.search_term_active)
+
     def search(self, reverse=False):
         if not self.search_term_active:
             return
         self.table.batcher.add(0)
         self.search_display_message(reverse)
         current_index = 0 if self.task_list.focus is None else self.task_list.focus_position
-        new_focus = self.search_rows(self.search_term_active, current_index, reverse)
+        new_focus = self.search_rows(self.search_term_active, current_index,
+                                     reverse, self.is_search_insensitive())
         if new_focus is None:
             self.activate_message_bar("Pattern not found: %s" % self.search_term_active, 'error')
         else:
             self.task_list.focus_position = new_focus
 
-    def search_rows(self, term, start_index=0, reverse=False):
-        search_regex = re.compile(term, re.MULTILINE)
+    def search_rows(self, term, start_index=0, reverse=False, ignore_case=False):
+        if ignore_case:
+            re_flags = re.MULTILINE | re.IGNORECASE
+        else:
+            re_flags = re.MULTILINE
+        search_regex = re.compile(term, re_flags)
         rows = self.table.rows
         current_index = start_index
         last_index = len(rows) - 1
